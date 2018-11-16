@@ -1,0 +1,128 @@
+<div class="list-group">
+  <div class="list-group-item bg-athens-grey">
+    <div class="row menuHeader flexCenter">
+      <div class="col-xs-12">
+        Wortkürzel
+        <settings-infobox-toggle name="settings-wordtags"></settings-infobox-toggle>
+      </div>
+    </div>
+  </div>
+  <settings-infobox name="settings-wordtags">
+    In diesem Bereich können Sie
+    <u>Wortkürzel</u> anlegen, um häufig verwendete Texte in die Patientenkartei oder den Kalender einzufügen. Um ein
+    Wortkürzel
+    zu aktivieren geben Sie einfach "+kürzel" + LEERTASTE ein.
+    <p></p>
+    <u>Zum Beispiel</u>: Sie wollen ein Wortkürzel für den Standardtext "Grippaler Infekt" erstellen. Als Kürzel
+    definieren
+    Sie "gf". In das Feld Ausformulierung tragen Sie "Grippaler Infekt" ein". Nachdem Sie dieses Wortkürzel gespeichert
+    haben,
+    können Sie dieses Eingabe von "+gf" und anschließendem Drücken der LEERTASTE aufrufen (z.B beim Karteieintrag).
+  </settings-infobox>
+
+  <div class="list-group-item">
+    <div class="row listHeader">
+      <div class="col-xs-3">
+        Kürzel
+      </div>
+      <div class="col-xs-9">
+        Ausformulierung
+      </div>
+    </div>
+  </div>
+
+  <ng-template ngFor let-tag [ngForOf]="wordTags">
+    <div class="list-group-item" role="tab">
+      <div class="row flexCenterRow" *ngIf="!tag.edit">
+        <div class="col-md-3">
+          {{tag?.tag}}
+        </div>
+        <div class="col-md-8">
+          <ng-template ngFor let-line [ngForOf]="tag?.wording.split('\n')">
+            {{line}}
+            <br>
+          </ng-template>
+        </div>
+        <div class="col-md-1 text-right">
+          <button mat-icon-button [matMenuTriggerFor]="wordTagsListDropdown">
+            <mat-icon svgIcon="ltdo:context-menu" class="icon context-menu" fxLayoutAlign="center center"></mat-icon>
+          </button>
+
+          <mat-menu #wordTagsListDropdown="matMenu" yPosition="below">
+            <button mat-menu-item (click)="changeEditMode(tag.tag)">
+              bearbeiten
+            </button>
+            <button mat-menu-item (click)="deleteWordTag(tag.tag)">
+              löschen
+            </button>
+          </mat-menu>
+
+          <!--<div class="dropdown text-center pull-right" dropdown>
+            <a dropdown-open><span class="glyphicon glyphicon-option-vertical" test-tag="dropdown-kartei"></span></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a (click)="changeEditMode(tag.tag)">bearbeiten</a>
+              </li>
+              <li>
+                <a (click)="deleteWordTag(tag.tag)">löschen</a>
+              </li>
+            </ul>
+          </div>-->
+        </div>
+      </div>
+      <form #editForm="ngForm">
+        <div class="row flexCenterRow" *ngIf="tag.edit">
+          <div class="col-md-3">
+            <!-- <input [(ngModel)]="newTag" type="text" class="form-control" formErrorHandler [customValidationFn]="checkDuplicates(tag.tag, true)"
+            customValidationError="Wortkürzel ist schon in Verwendung!"> -->
+            <input chk4UnsavedChanges name="tag" [(ngModel)]="newTag" type="text" class="form-control" placeholder="Kürzel"
+              required ltdoFocus formErrorHandler="Wortkürzel ist schon in Verwendung!" [customValidationFn]="checkDuplicatesClosure(newTag, true)" />
+          </div>
+          <div class="col-md-7">
+            <input chk4UnsavedChanges name="wording" [(ngModel)]="newWording" type="text" class="form-control" required
+              placeholder="Ausformulierung" />
+          </div>
+          <div class="col-md-1 text-right">
+            <button type="button" (click)="tag.edit = false; cancel()" class="btn btn-secondary">abbrechen</button>
+          </div>
+          <div class="col-md-1 text-right">
+            <button type="submit" class="btn btn-submit" (click)="editWordTag(tag.tag)" [disabled]="editForm.invalid || checkDuplicates(newTag, true)">speichern</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </ng-template>
+
+
+  <div class="list-group-item p-a-2">
+    <div class="row">
+      <div class="col-md-12 flexCenterRowEnd" *ngIf="!newWordTag">
+        <button type="button" class="btn btn-submit" (click)="changeEditMode('')">+ Neues Wortkürzel hinzufügen</button>
+      </div>
+      <div *ngIf="newWordTag">
+        <form #newForm="ngForm" (ngSubmit)="addWordTag()">
+          <div class="col-md-3">
+            <!--<input [(ngModel)]="newTag" type="text" class="form-control" formErrorHandler [customValidationFn]="checkDuplicates(newTag, false)"
+              customValidationError="Wortkürzel ist schon in Verwendung!">-->
+            <input chk4UnsavedChanges name="tag" [(ngModel)]="newTag" type="text" class="form-control" placeholder="Kürzel"
+              required ltdoFocus formErrorHandler="Wortkürzel ist schon in Verwendung!" [customValidationFn]="checkDuplicatesClosure(newTag, false)" />
+          </div>
+          <div class="col-md-6">
+            <input chk4UnsavedChanges name="wording" [(ngModel)]="newWording" type="text" class="form-control" required
+              placeholder="Ausformulierung" />
+          </div>
+          <div class="col-md-3 flexCenterRowEnd">
+            <div class="list-inline pull-right">
+              <li>
+                <button chk4UnsavedChangesClear type="button" (click)="cancel()" class="btn btn-secondary">abbrechen</button>
+              </li>
+              <li>
+                <button chk4UnsavedChangesClear type="submit" class="btn btn-submit" [disabled]="newForm.invalid || checkDuplicates(newTag, false)">speichern</button>
+              </li>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

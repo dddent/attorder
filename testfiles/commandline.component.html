@@ -1,0 +1,81 @@
+<div #backdropWrapper>
+  <div class="backdrop-container backdrop-scroll" [ngClass]="{ 'cl-backdrop': !hideBackdrop && (isFocused || formActive) && theme === 'minor' }"></div>
+  <div #backdrop class="backdrop-container" [ngClass]="{ 'cl-backdrop': !hideBackdrop && (isFocused || formActive) && theme === 'minor' }"></div>
+  <div #container (click)="containerClicked()" class="cl-container" [ngClass]="{'minor': theme === 'minor', 'major': theme === 'major', 'foreground': isFocused || formActive}">
+    <div fxLayout="row" class="cl-wrapper">
+      <ng-template [ngIf]="theme === 'minor' && availableCodes.length <= 4 && (!isFocused || !activeTag) && !formActive" [ngIfElse]="dropdownSelection"
+        [ngIfThen]="buttonSelection">
+      </ng-template>
+
+      <ng-template #buttonSelection>
+        <div *ngFor="let tag of availableCodes" (click)="triggerCode(tag)" fxFlex="70px" fxLayoutAlign="center center" class="cl-tag-btn" [ngClass]="{ 'active': tag === activeTag }">
+          <div test-tag="code-tag" fxLayoutAlign="center center">
+            {{tag}}
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- dropdown menu with tag selection -->
+      <ng-template #dropdownSelection>
+        <div fxFlex="70px" fxLayoutAlign="center center" class="cl-tag-btn">
+          <div *ngIf="activeTag && (theme === 'major' || isFocused || formActive)" test-tag="code-tag" fxLayoutAlign="center center">
+            {{activeTag}}
+          </div>
+
+          <div *ngIf="!activeTag && (theme === 'major' || availableCodes.length > 4)">
+            <div class="input-group-btn">
+              <a fxFill fxLayoutAlign="center center" [matMenuTriggerFor]="availableCodesDropdown" title="Eintrag hinzufügen">
+                <mat-icon svgIcon="ltdo:plus" class="icon add-tag" fxLayoutAlign="center center"></mat-icon>
+              </a>
+
+              <mat-menu [overlapTrigger]="false" class="available-codes-dropdown" #availableCodesDropdown="matMenu">
+                <ng-template matMenuContent ngFor let-code [ngForOf]="availableCodes">
+                  <button type="button" fxLayout="row" fxLayoutGap="12px" fxLayoutAlign="start center" class="cl-mat-dropdown" mat-menu-item *ngIf="getMetadataForCode(code)?.dropdown"
+                    (click)="triggerCode(code)">
+                    <img fxFlex="35px" *ngIf="getMetadataForCode(code).logo" [src]="getMetadataForCode(code).logo" [title]="getTagForCode(code).name">
+                    <span fxFlex>{{getTagForCode(code).name}}</span>
+                    <span fxFlex="50px" class="dark-green light" fxLayoutAlign="end center">{{code}}</span>
+                    <span fxFlex="10px" class="ghost-grey" fxLayoutAlign="center center">+</span>
+                    <span fxFlex="50px" class="keyboard-key" fxLayoutAlign="center center">Leertaste</span>
+                  </button>
+                </ng-template>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+
+      <!-- terminal input -->
+      <div fxFlex="grow" fxLayout="row" fxLayoutAlign="start center">
+        <input *ngIf="!formActive" (focus)="onFocus($event)" (blur)="onBlur($event)" #input id="commandline" ltdo-wordtags [autoreplaceWordtags]="false"
+          [(ngModel)]="term" class="cl-form-control" (keydown)="keydown($event)" (keyup)="keyup($event)" [placeholder]="inputPlaceholder" (keypress)="keypress($event)"
+        />
+
+        <div fxFlex="grow" *ngIf="formActive" class="p-l-1 medium">
+          <ng-template [ngIf]="!submitting" [ngIfElse]="submittingTemplate">
+            <commandline-entity-outlet [isSelectedEntity]="true" *ngIf="activeEntity && activeEntityFactory && !activeEntityString" [listId]="activeEntityListId"
+              [entity]="activeEntity" [factory]="activeEntityFactory"></commandline-entity-outlet>
+            <span *ngIf="activeEntityString">{{activeEntityString}}</span>
+          </ng-template>
+
+          <ng-template #submittingTemplate>
+            <i class="fa fa-spinner fa-pulse fa-fw"></i>
+            <span>Wird eingetragen...</span>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- close tag creation -->
+      <div fxFlex="50px" fxLayoutAlign="center center" *ngIf="activeTag && !isPaused" test-tag="close-terminal" class="cl-close-btn">
+        <a fxFlex="50px" (click)="$event.stopPropagation();closeClicked()" fxLayoutAlign="center center">
+          <mat-icon svgIcon="ltdo:cl-close" class="icon cl-close" fxLayoutAlign="center center"></mat-icon>
+        </a>
+      </div>
+    </div>
+
+    <div [hidden]="isPaused">
+      <div #outlet></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<!doctype HTML>
+<html>
+
+<head>
+  <title>Latido</title>
+  <!-- base tag required for angular router -->
+  <base href="/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1, minimal-ui">
+  <!-- this needs to be set to true when using service workers -->
+  <meta name="apple-mobile-web-app-capable" content="no">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <!-- favicon settings -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/ltdo-favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/ltdo-favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/ltdo-favicon/favicon-16x16.png">
+  <link rel="manifest" href="assets/ltdo-favicon/site.webmanifest">
+  <link rel="mask-icon" href="assets/ltdo-favicon/safari-pinned-tab.svg" color="#434d60">
+  <link rel="shortcut icon" href="assets/ltdo-favicon/favicon.ico">
+  <meta name="msapplication-TileColor" content="#434d60">
+  <meta name="msapplication-config" content="assets/ltdo-favicon/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <!-- make app installable to home screen on supported Android browsers -->
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+  <!-- loading spinner animation -->
+  <link rel="stylesheet" type="text/css" href="assets/styles/loading-spinner.style.css">
+  <!-- FROALA -->
+  <script id="fr-fek">
+    try { (function (k) { localStorage.FEK = k; t = document.getElementById('fr-fek'); t.parentNode.removeChild(t); })('NC2E1E2G4mH4A15C10D6E2E5B3D2F3B2c1Rc2Re1MKI1AKUBWBOR==') } catch (e) { }
+  </script>
+
+  <!-- socketio -->
+  <script src="socket.io/socket.io.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1976d2">
+</head>
+
+<!-- 3. Display the application -->
+
+<body>
+  <latido-app>
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="loading-spinner" x="0" y="0" width="100"
+        height="100" viewBox="0 0 63.5 63.5" enable-background="new 0 0 63.5 63.5" xml:space="preserve">
+        <circle opacity="0.5" fill="#FFFFFF" enable-background="new    " cx="31.8" cy="31.8" r="28.8" />
+        <path class="right-ear" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M31.5 41.3c0 0-9.5-9.5-10.5-10.5s-3-4.3 0-7.2c2.5-2.5 5.6-0.5 5.6-0.5"
+        />
+        <path class="left-ear" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M31.5 41.3c0 0 9.5-9.5 10.5-10.5s3-4.3 0.1-7.2c-2.5-2.5-5.6-0.5-5.6-0.5"
+        />
+        <path class="outer-circle" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M31.6 41.1c0 0-1 8.8 6.9 8.8 4.1 0 7.7-2.6 10.1-6.4 2-3.2 3.2-7.3 3.2-11.5 0-4.6-1.5-9.8-4.8-13.7 -3.3-4-8.6-6.7-16-6.6 -5 0.1-8.9 1.7-11.8 4.1 -5 4-7.3 9.9-7.3 13.5 -0.9 0-1.5 0.7-1.5 1.5s0.7 1.5 1.5 1.5c0.8 0 1.5-0.7 1.5-1.5"
+        />
+      </svg>
+    </div>
+  </latido-app>
+  <!-- <div style="visibility: hidden; height: 1px; width: 9px" class="test"><img src="/tag.jpg"></div> -->
+</body>
+
+</html>

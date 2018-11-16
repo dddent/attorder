@@ -1,0 +1,295 @@
+<form z-index="50" (ngSubmit)="save()" fxLayout="row wrap" style="height: 100%">
+  <ltdo-modal-header fxFlex="100">
+    <h5>
+      <span *ngIf="!isExistingAppointment">Termin anlegen</span>
+    </h5>
+    <h5 z a>
+      <span *ngIf="isExistingAppointment">Termindetails</span>
+    </h5>
+  </ltdo-modal-header>
+
+  <!-- Patient / Individual Search-->
+  <div z="2" fxFlex="100" fxLayout="row wrap">
+    <mat-radio-group fxFlex="100" [(ngModel)]="appointment.nonPatient" name="typeselect" *ngIf="!appointment.patient || appointment.nonPatient">
+      <mat-radio-button class="m-r-2" [value]="false">Patiententermin</mat-radio-button>
+      <mat-radio-button [value]="true">Individueller Termin</mat-radio-button>
+    </mat-radio-group>
+
+    <div fxFlex="100" fxLayout.lt-sm="row wrap" fxLayout.gt-md="row nowrap" fxLayoutGap.gt-md="20px" fxLayoutGap.lt-sm="0px"
+      class="m-y-1" *ngIf="!appointment.patient && !appointment.nonPatient && !isPreviewMode && !isShowNewPatientForm">
+      <!--<label for="patient-search-input">Patient
+              <a (click)="onNonPatientButtonClicked()">Individuell</a>
+            </label>-->
+      <div fxFlex="100" fxLayout="row wrap">
+        <patient-search fxFlex="100" #patientSearch id="patient-search-input" [showCreateNew]="true" (onCreateNew)="createNewPatient()"
+          (selected)="selectPatient($event)" ltdoFocus></patient-search>
+        <div fxFlex="100" class="alert alert-danger" *ngIf="isDisplayErrorMessage && errorMessage.position === 'patient'">{{errorMessage.message}}</div>
+      </div>
+      <!-- empty div to offset the patient search-->
+      <div fxFlex="100"></div>
+    </div>
+
+    <div fxFlex="100" class="form-group m-t-1" *ngIf="appointment.nonPatient">
+      <!--<label for="eventTitle">
+            <a (click)="onPatientButtonClicked()">Patient</a> Individuell</label>-->
+      <div fxLayout="row">
+        <input fxFlex fxFlex.gt-sm="50%" *ngIf="!isPreviewMode" ltdo-wordtags class="form-control" type="text" name="eventTitle"
+          id="eventTitle" [(ngModel)]="eventTitle" placeholder="z.B.: Urlaub, Privat ...">
+      </div>
+      <div fxFlex fxFlex.gt-sm="50%" class="alert alert-danger" *ngIf="isDisplayErrorMessage && errorMessage.position === 'calendar'">{{errorMessage.message}}</div>
+      <span *ngIf="isPreviewMode">{{eventTitle}}</span>
+    </div>
+
+    <div fxFlex="100" fxLayout="row wrap" *ngIf="isShowNewPatientForm && !appointment.nonPatient" class="m-t-1">
+      <!--<h5 class="medium">Neuen Patienten anlegen</h5>-->
+      <span fxFlex>
+        <h5 class="medium">Neuen Patienten anlegen</h5>
+      </span>
+      <!-- Context menu icon set, it triggers an error message, needs fix -->
+      <button type="button" fxFlex="nogrow" mat-icon-button [matMenuTriggerFor]="newEventMenu">
+        <mat-icon svgIcon="ltdo:context-menu" class="icon context-menu" fxLayoutAlign="center center"></mat-icon>
+      </button>
+      <mat-menu #newEventMenu="matMenu">
+        <button (click)="isShowNewPatientForm = false" type="button" mat-menu-item>bestehenden Patienten wählen</button>
+      </mat-menu>
+      <!-- context menu icon -->
+      <ltdo-quick-patient fxFlex="100" (existingSelected)="selectPatient($event)" #quickPatient></ltdo-quick-patient>
+    </div>
+    <div fxFlex="100" *ngIf="isEditPatient" class="m-t-1">
+      <ltdo-quick-patient [patient]="appointment.patient" #quickPatient></ltdo-quick-patient>
+    </div>
+  </div>
+  <!-- END Patient / Individual Search -->
+
+  <!-- Patient filled out -->
+  <div fxFlex="100" fxLayout.xs="row wrap" fxLayout="row nowrap" fxLayoutAlign="space-between start" class="form-group"
+    *ngIf="!isEditPatient && appointment.patient && !appointment.nonPatient">
+    <div fxFlex="100" (click)="openPatient(appointment.patient)" ngClass.lt-sm="p-b-1" ngClass.gt-md="p-r-2">
+      <label>Patient</label>
+      <table>
+        <tr>
+          <td>
+            <ltdo-age-box [patient]="appointment.patient" fontSize="1.5"></ltdo-age-box>
+          </td>
+          <td class="p-l-1">
+            <span class="patient-name-last pointer">{{appointment.patient.coreData.name.last}}, </span>
+            <span class="patient-name-first pointer">{{appointment.patient.coreData.name.first}}</span>
+            <br>
+            <span class="patient-insurancenumber">{{appointment.patient.insuranceData.insurancenumber}}</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div fxFlex="100" fxLayout="row wrap" fxLayoutAlign="space-between stretch">
+      <label fxFlex="100">Kontakt</label>
+      <div fxflex="100">
+        <div fxLayout="row">
+          <div fxFlex="24px" fxLayoutAlign="center center">
+            <mat-icon svgIcon="ltdo:mobile" class="icon mobile" fxLayoutAlign="center center"></mat-icon>
+          </div>
+          <span>&nbsp;{{appointment.patient.coreData.mobile}}</span>
+          <span *ngIf="!appointment.patient.coreData.mobile">&nbsp;keine Angabe</span>
+        </div>
+        <div fxLayout="row">
+          <div fxFlex="24px" fxLayoutAlign="center center">
+            <mat-icon svgIcon="ltdo:email" class="icon email" fxLayoutAlign="center center"></mat-icon>
+          </div>
+          <span>&nbsp;{{appointment.patient.coreData.email}}</span>
+          <span *ngIf="!appointment.patient.coreData.email">&nbsp;keine Angabe</span>
+        </div>
+      </div>
+      <button type="button" fxFlex="40px" mat-icon-button [matMenuTriggerFor]="calendarPatientModalDropdown">
+        <mat-icon svgIcon="ltdo:context-menu" class="icon context-menu" fxLayoutAlign="center center"></mat-icon>
+      </button>
+    </div>
+
+    <mat-menu #calendarPatientModalDropdown="matMenu">
+      <button (click)="editPatient()" mat-menu-item>Stammdaten bearbeiten</button>
+      <button (click)="changeActivePatient()" mat-menu-item *ngIf="!isOnlineAppointment && !isCancelled && !hasNotifications">Patienten
+        entfernen</button>
+    </mat-menu>
+    <!-- <a fxFlex="nogrow" *ngIf="!isOnlineAppointment && !isCancelled && !hasNotifications" >
+        <mat-icon svgIcon="ltdo:edit" class="icon edit" fxLayoutAlign="center center"></mat-icon>
+      </a>
+      <button fxFlex="nogrow" *ngIf="!isOnlineAppointment && !isCancelled && !hasNotifications" mat-icon-button >
+        <mat-icon fontSet="fa" fontIcon="fa-times"></mat-icon>
+      </button> -->
+  </div>
+  <!-- END Patient filled out -->
+  <div fxFlex="100">
+    <hr>
+  </div>
+  <!-- Kalender / Termintyp -->
+  <div fxFlex="100" fxLayout.lt-sm="row wrap" fxLayout.gt-md="row nowrap" fxLayoutGap="10px" fxLayoutGap.xs="0" class="form-group">
+    <div fxFlex="50" fxFlex.lt-sm="100">
+      <label for="calendar">Kalender</label>
+      <ltdo-search-select [(ngModel)]="activeCalendarId" (ngModelChange)="calendarChanged()" name="selectedCalendar">
+        <ltdo-search-select-option *ngFor="let cal of calendars" [value]="cal.id" displayText="{{cal.name}}"></ltdo-search-select-option>
+      </ltdo-search-select>
+      <span *ngIf="isPreviewMode">{{activeCalendarName}}</span>
+      <div class="p-t-1 alert alert-warning m-0" *ngIf="!activeCalendar?.selected">
+        Achtung: Kalender ist derzeit ausgeblendet.
+      </div>
+    </div>
+
+    <div fxFlex="50" fxFlex.lt-sm="100">
+      <label for="appointmentType">Termintyp</label>
+      <ltdo-search-select [(ngModel)]="appointment.type" name="aptType" comparator="name" (ngModelChange)="appointmentTypeSelected($event.id)">
+        <ltdo-search-select-option value="-1" displayText="--Termintyp auswählen --"></ltdo-search-select-option>
+        <ltdo-search-select-option *ngFor="let at of appointmentTypes" [value]="at" displayText="({{at.duration}} min.) {{at.name}}"></ltdo-search-select-option>
+      </ltdo-search-select>
+    </div>
+  </div>
+  <!--Calendar / Termintyp-->
+  <div fxFlex="100" [ngClass]="{'alert-box m-b-1':(activeCalendar && (!startIsWithinBusinessHour)) ||
+                               (activeCalendar && (!endIsWithinBusinessHour)) || hasExistingApts}">
+    <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap.gt-md="20px" fxLayoutGap.lt-sm="0"
+      fxLayout.lt-sm="row wrap" fxLayout.gt-md="row nowrap">
+      <div fxFlex="100" class="form-group">
+        <label for="date">Datum</label>
+        <ltdo-datepicker theme="light" size="large" name="date" ngDefaultControl name="birthday" [(ngModel)]="appointment.start"
+          (ngModelChange)="dateChanged()"></ltdo-datepicker>
+        <div fxLayout="row">
+          <span fxFlex class="alert alert-danger" *ngIf="isDisplayErrorMessage && errorMessage.position === 'date'">{{errorMessage.message}}</span>
+        </div>
+      </div>
+      <div fxFlex="100" fxLayoutGap="20px">
+        <div fxFlex="50%" class="form-group" id="timeRange" *ngIf="!isPreviewMode">
+          <label for="startTime">von</label>
+          <input fxLayoutAlign="center center" class="form-control" id="startTime" type="time" name="startTime"
+            [ltdoTime]="appointment.start" (ltdoTimeChange)="startTimeChanged($event)">
+        </div>
+        <div fxFlex="50%" class="form-group">
+          <label for="endTime">bis</label>
+          <input fxLayoutAlign="center center" class="form-control" type="time" id="endTime" name="endTime"
+            [(ltdoTime)]="appointment.end" (ltdoTimeChange)="endTimeChanged()">
+          <div fxLayout="row">
+            <span fxFlex class="alert alert-danger" *ngIf="isDisplayErrorMessage && errorMessage.position === 'bottom'">{{errorMessage.message}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="small" *ngIf="!startIsWithinBusinessHour || !endIsWithinBusinessHour">
+      <span class="medium" *ngIf="!startIsWithinBusinessHour">
+        Startzeit
+      </span>
+      <span *ngIf="!startIsWithinBusinessHour && !endIsWithinBusinessHour">&nbsp;&amp;&nbsp;</span>
+      <span class="medium" *ngIf="!endIsWithinBusinessHour">
+        Endzeit
+      </span>
+      <span *ngIf="!(!startIsWithinBusinessHour && !endIsWithinBusinessHour)">&nbsp;liegt&nbsp;</span>
+      <span *ngIf="!startIsWithinBusinessHour && !endIsWithinBusinessHour">&nbsp;liegen&nbsp;</span>
+      <span>außerhalb der Ordinationszeit.</span>
+    </div>
+    <div class="small" *ngIf="hasExistingApts">
+      In diesem Zeitraum existiert bereits ein Termin.
+    </div>
+
+  </div>
+  <!-- END Calendar / Termintyp -->
+
+  <!-- Whats That? -->
+  <!--<span fxFlex class="preview-text" *ngIf="isPreviewMode">{{appointment.start.toDate() | date:'HH:mm'}} - {{appointment.end.toDate() | date:'HH:mm'}}</span>-->
+  <!-- END Whats That? -->
+
+  <div fxFlex="100">
+    <hr>
+  </div>
+
+  <!-- Notifications -->
+  <div fxLayout="row wrap" fxFlex="100">
+    <!-- (cancellations && reminders.length > 0) || (cancellations && cancellations.length > 0) -->
+    <div fxFlex="100" fxLayout="row wrap" fxLayoutAlign="space-between center">
+      <label fxFlex for="patient-notifications">Terminerinnerungen</label>
+      <div fxFlex="nogrow" class="onoffswitch" (click)="setNotificationActive($event)">
+        <input type="checkbox" class="onoffswitch__checkbox" [checked]="notificationActive" [disabled]="isNotificationGloballyDisabled()"
+          name="onoffinput" id="onoffinputtemporary">
+        <label class="onoffswitch__label" for="onoffinput">
+          <span class="onoffswitch__text onoffswitch__text-content" toggle-on-text="AKTIVIERT" toggle-off-text="DEAKTIVIERT"></span>
+          <span class="onoffswitch__switch"></span>
+        </label>
+      </div>
+    </div>
+    <div *ngIf="wantsNotificationsEnabled" fxLayout="row" fxLayoutAlign="space-between center" class="infobox p-a-2"
+      fxLayoutGap="20px">
+      <p fxFlex="grow">
+        <b>Achtung:</b>
+        <br> Terminerinnerungen sind für diesen Kalender deaktiviert. Bitte gehen Sie in die Kalendereinstellungen, um
+        Terminerinnerungen
+        zu aktivieren.</p>
+      <button fxHide.xs type="button" class="btn btn-primary" routerLink="/settings/calendar" routerLinkActive="active"
+        target="_blank" (click)="closeModal()">zu den Einstellungen</button>
+    </div>
+    <!--</div>
+    </div>-->
+    <div fxFlex="100" *ngIf="displayReceiverSelect && appointment.patient" class="m-y-1">
+      <notification-receiver-select [invalidMailReceivers]="invalidMailReceivers" [invalidSmsReceivers]="invalidSmsReceivers"
+        [patient]="appointment.patient" [(config)]="notificationCreateConfig" [globalConfig]="globalConfig.reminder"
+        [(mailReceiver)]="mailReceiver" [(smsReceiver)]="smsReceiver"></notification-receiver-select>
+    </div>
+    <div fxFlex="100" *ngIf="notificationActive && !displayReceiverSelect" class="m-y-1">
+      <appointment-notification-log [appointment]="appointment" [reminders]="appointment.notifications.reminders"
+        (notificationChange)="notificationsChanges()" (retry)="retryReminder()" [cancellations]="appointment.notifications.cancellations"></appointment-notification-log>
+    </div>
+    <div fxFlex="100" class="alert alert-danger m-y-1" *ngIf="isDisplayErrorMessage && errorMessage.position === 'patient'">{{errorMessage.message}}</div>
+  </div>
+  <div fxFlex="100">
+    <hr>
+  </div>
+  <!-- END Notifications -->
+
+  <!-- Note -->
+  <div fxFlex="100" fxLayout="row wrap">
+    <label fxFlex="100" for="comment">Notiz</label>
+    <a fxFlex="100" *ngIf="!isNoteActive && !isPreviewMode" (click)="activateNote()">+ hinzufügen</a>
+    <textarea *ngIf="isNoteActive && !isPreviewMode" [(ngModel)]="appointment.note" id="comment" name="comment" rows="3"
+      class="form-control" ltdo-wordtags></textarea>
+    <span fxFlex *ngIf="isPreviewMode">{{appointment.note}}</span>
+  </div>
+  <!--END Note-->
+  <div fxFlex="100">
+    <hr>
+  </div>
+  <!-- Patient nicht erschienen -->
+  <div fxFlex="100" *ngIf="isInThePastNow && !appointment.nonPatient" class="p-b-1">
+    <mat-checkbox name="missed" [(ngModel)]="appointment.missed">Patient nicht erschienen</mat-checkbox>
+  </div>
+  <!-- END Patient nicht erschienen -->
+
+  <!--Footer-->
+
+  <div fxFlex="100" ngStyle.lt-md="m-b-1" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="10px">
+
+    <button fxFlex.gt-sm="0 1 auto" fxFlex.lt-md="1 1 auto" type="button" class="btn btn-secondary" (click)="deleteCurrentAppointment()"
+      *ngIf="isExistingAppointment && !isCancelled && !isInThePast">
+      <span *ngIf="!appointment.nonPatient">stornieren</span>
+      <span *ngIf="appointment.nonPatient">löschen</span>
+    </button>
+
+    <div fxFlex.gt-sm="0 1 auto" fxHide.lt-md type="button" *ngIf="isExistingAppointment && !appointment.nonPatient">
+
+      <button type="button" class="btn btn-secondary" [matMenuTriggerFor]="calendarSettingsMenu">
+        auf Warteliste setzen
+      </button>
+
+      <mat-menu #calendarSettingsMenu="matMenu">
+        <ng-template ngFor let-waitingList [ngForOf]="waitingLists">
+          <ng-template [ngIf]="isAlreadyOnWaitingList(waitingList)">
+            <button type="button" *ngIf="isAlreadyOnWaitingList(waitingList)" style="text-decoration: line-through"
+              mat-menu-item>{{waitingList.title}}</button>
+          </ng-template>
+
+          <ng-template [ngIf]="!isAlreadyOnWaitingList(waitingList)">
+            <button type="button" *ngIf="!isAlreadyOnWaitingList(waitingList)" (click)="toWaitingList(waitingList)"
+              mat-menu-item>{{waitingList.title}}</button>
+          </ng-template>
+        </ng-template>
+      </mat-menu>
+    </div>
+
+    <button fxFlex.gt-sm="0 1 auto" fxFlex.lt-md="1 1 auto" class="btn btn-submit" type="submit" [disabled]="saveButtonDisabled"
+      *ngIf="!isPreviewMode">speichern</button>
+  </div>
+  <!-- END Footer -->
+</form>

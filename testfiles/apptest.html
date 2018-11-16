@@ -1,0 +1,22 @@
+<div style="height: 100vh" fxLayout="column">
+  <!-- NAVBAR -->
+  <ltdo-navbar [sidenav]="sidenav" style="z-index: 500" [waitingListShown]="isWaitingListShown" fxFlex="80px"></ltdo-navbar>
+
+  <mat-sidenav-container fxFlex="grow" fxLayout="column" class="sidenav-container">
+    <mat-sidenav #sidenav>
+      <ltdo-sidenav [sidenav]="sidenav"></ltdo-sidenav>
+    </mat-sidenav>
+
+    <div fxFlex="grow" fxLayout="column" style="height: 100%">
+      <!-- WAITING LIST -->
+      <div fxFlex="nogrow" @wlInOut *ngIf="isWaitingListShown">
+        <waiting-list></waiting-list>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div fxFlex="grow" style="height: 100%" [ngStyle]="{ 'overflow': scrollContent ? 'auto' : 'hidden' }">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </mat-sidenav-container>
+</div>
